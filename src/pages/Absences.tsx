@@ -52,7 +52,7 @@ const Absences = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-main">
+    <div className="min-h-screen bg-gradient-subtle">
       <Header />
       
       <main className="container mx-auto p-6 space-y-6">
