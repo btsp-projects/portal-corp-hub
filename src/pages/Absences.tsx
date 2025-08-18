@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
+import { useNavigate } from "react-router-dom";
 
 // Mock data
 const mockAbsences = [
@@ -18,6 +19,7 @@ const mockAbsences = [
 ];
 
 const Absences = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -59,7 +61,7 @@ const Absences = () => {
             <h1 className="text-2xl font-bold text-foreground">Afastamentos</h1>
             <p className="text-muted-foreground">Gerencie férias, licenças e afastamentos</p>
           </div>
-          <Button>
+          <Button onClick={() => navigate("/absences/new")}>
             <Plus className="h-4 w-4 mr-2" />
             Novo Afastamento
           </Button>

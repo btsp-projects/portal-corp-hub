@@ -9,6 +9,8 @@ import Employees from "./pages/Employees";
 import EmployeeForm from "./pages/EmployeeForm";
 import Departments from "./pages/Departments";
 import Absences from "./pages/Absences";
+import Birthdays from "./pages/Birthdays";
+import AbsenceForm from "./pages/AbsenceForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/employees/edit/:id" element={<EmployeeForm />} />
           <Route path="/departments" element={<Departments />} />
           <Route path="/absences" element={<Absences />} />
+          <Route path="/absences/new" element={<AbsenceForm />} />
+          <Route path="/birthdays" element={<Birthdays />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

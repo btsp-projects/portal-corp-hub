@@ -1,4 +1,4 @@
-import { Users, Menu, Bell, Search, Home, UserCheck, Building2, Calendar, LogOut } from "lucide-react";
+import { Users, Menu, Bell, Search, Home, UserCheck, Building2, Calendar, Cake, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -13,6 +13,7 @@ const Header = () => {
     { label: "Funcionários", icon: UserCheck, path: "/employees" },
     { label: "Setores", icon: Building2, path: "/departments" },
     { label: "Afastamentos", icon: Calendar, path: "/absences" },
+    { label: "Aniversariantes", icon: Cake, path: "/birthdays" },
   ];
 
   return (
