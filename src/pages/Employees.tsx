@@ -26,7 +26,7 @@ const Employees = () => {
   const filteredEmployees = mockEmployees.filter(emp => {
     const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = !departmentFilter || emp.department === departmentFilter;
+    const matchesDepartment = !departmentFilter || departmentFilter === "all" || emp.department === departmentFilter;
     return matchesSearch && matchesDepartment;
   });
 
@@ -81,7 +81,7 @@ const Employees = () => {
                   <SelectValue placeholder="Filtrar por setor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os setores</SelectItem>
+                  <SelectItem value="all">Todos os setores</SelectItem>
                   <SelectItem value="TI">TI</SelectItem>
                   <SelectItem value="RH">RH</SelectItem>
                   <SelectItem value="Financeiro">Financeiro</SelectItem>

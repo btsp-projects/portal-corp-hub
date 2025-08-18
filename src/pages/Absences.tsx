@@ -24,8 +24,8 @@ const Absences = () => {
 
   const filteredAbsences = mockAbsences.filter(absence => {
     const matchesSearch = absence.employee.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = !typeFilter || absence.type === typeFilter;
-    const matchesStatus = !statusFilter || absence.status === statusFilter;
+    const matchesType = !typeFilter || typeFilter === "all" || absence.type === typeFilter;
+    const matchesStatus = !statusFilter || statusFilter === "all" || absence.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
 
@@ -140,7 +140,7 @@ const Absences = () => {
                   <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
                   <SelectItem value="Férias">Férias</SelectItem>
                   <SelectItem value="Licença Médica">Licença Médica</SelectItem>
                   <SelectItem value="Capacitação">Capacitação</SelectItem>
@@ -154,7 +154,7 @@ const Absences = () => {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="all">Todos os status</SelectItem>
                   <SelectItem value="Aprovado">Aprovado</SelectItem>
                   <SelectItem value="Ativo">Ativo</SelectItem>
                   <SelectItem value="Concluído">Concluído</SelectItem>
