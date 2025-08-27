@@ -1,10 +1,12 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Plus, Search, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +24,8 @@ const mockDepartments = [
 
 const Departments = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -35,6 +39,22 @@ const Departments = () => {
     dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dept.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Pagination logic
+  const totalItems = filteredDepartments.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentDepartments = filteredDepartments.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const handleOpenDialog = (department?: any) => {
     setEditingDepartment(department);
@@ -83,13 +103,13 @@ const Departments = () => {
           <CardHeader>
             <CardTitle>Lista de Setores</CardTitle>
             <CardDescription>
-              {filteredDepartments.length} setor(es) encontrado(s)
+              {totalItems} setor(es) encontrado(s) • Página {currentPage} de {totalPages}
             </CardDescription>
           </CardHeader>
           
           <CardContent>
-            <div className="mb-6">
-              <div className="relative">
+            <div className="flex gap-4 mb-6">
+              <div className="flex-1 relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nome ou código..."
@@ -98,6 +118,18 @@ const Departments = () => {
                   className="pl-10"
                 />
               </div>
+
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 por página</SelectItem>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="rounded-md border">
@@ -113,7 +145,7 @@ const Departments = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredDepartments.map((department) => (
+                  {currentDepartments.map((department) => (
                     <TableRow key={department.id}>
                       <TableCell className="font-medium">{department.name}</TableCell>
                       <TableCell>
@@ -148,6 +180,53 @@ const Departments = () => {
                 </TableBody>
               </Table>
             </div>
+
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination>
+                  <PaginationContent>
+                    {currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(currentPage - 1);
+                          }} 
+                        />
+                      </PaginationItem>
+                    )}
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={currentPage === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(page);
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    {currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(currentPage + 1);
+                          }} 
+                        />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </CardContent>
         </Card>
 

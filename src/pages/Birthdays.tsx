@@ -1,9 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Cake, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import Header from "@/components/Header";
 
 // Mock data with birthdays
@@ -18,6 +20,8 @@ const mockEmployeesWithBirthdays = [
 
 const Birthdays = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -31,6 +35,22 @@ const Birthdays = () => {
                          emp.department.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   }).sort((a, b) => new Date(a.birthday).getDate() - new Date(b.birthday).getDate());
+
+  // Pagination logic
+  const totalItems = birthdayEmployees.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBirthdayEmployees = birthdayEmployees.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const getMonthName = (month: number) => {
     const months = [
@@ -78,13 +98,13 @@ const Birthdays = () => {
           <CardHeader>
             <CardTitle>Aniversariantes de {getMonthName(currentMonth)}</CardTitle>
             <CardDescription>
-              {birthdayEmployees.length} aniversariante(s) este mês
+              {totalItems} aniversariante(s) este mês • Página {currentPage} de {totalPages}
             </CardDescription>
           </CardHeader>
           
           <CardContent>
-            <div className="mb-6">
-              <div className="relative">
+            <div className="flex gap-4 mb-6">
+              <div className="flex-1 relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nome ou setor..."
@@ -93,10 +113,22 @@ const Birthdays = () => {
                   className="pl-10"
                 />
               </div>
+
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6">6 por página</SelectItem>
+                  <SelectItem value="12">12 por página</SelectItem>
+                  <SelectItem value="24">24 por página</SelectItem>
+                  <SelectItem value="48">48 por página</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {birthdayEmployees.map((employee) => {
+              {currentBirthdayEmployees.map((employee) => {
                 const daysUntil = getDaysUntilBirthday(employee.birthday);
                 const isToday = daysUntil === 0;
                 
@@ -155,6 +187,53 @@ const Birthdays = () => {
                 <p className="text-muted-foreground">
                   {searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum aniversariante encontrado este mês'}
                 </p>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination>
+                  <PaginationContent>
+                    {currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(currentPage - 1);
+                          }} 
+                        />
+                      </PaginationItem>
+                    )}
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={currentPage === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(page);
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    {currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(currentPage + 1);
+                          }} 
+                        />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </CardContent>
