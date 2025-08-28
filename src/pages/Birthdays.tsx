@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Cake, Search } from "lucide-react";
+import { Cake, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -23,13 +23,17 @@ const Birthdays = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
   
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   
-  // Filter employees who have birthdays in the current month
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+  
+  // Filter employees who have birthdays in the selected month
   const birthdayEmployees = mockEmployeesWithBirthdays.filter(emp => {
     const empBirthday = new Date(emp.birthday);
-    return empBirthday.getMonth() + 1 === currentMonth;
+    return empBirthday.getMonth() + 1 === selectedMonth;
   }).filter(emp => {
     const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          emp.department.toLowerCase().includes(searchTerm.toLowerCase());
@@ -43,14 +47,34 @@ const Birthdays = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentBirthdayEmployees = birthdayEmployees.slice(startIndex, endIndex);
 
-  // Reset to first page when search changes
+  // Reset to first page when search or month changes
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, selectedMonth, selectedYear]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (selectedMonth === 1) {
+        setSelectedMonth(12);
+        setSelectedYear(selectedYear - 1);
+      } else {
+        setSelectedMonth(selectedMonth - 1);
+      }
+    } else {
+      if (selectedMonth === 12) {
+        setSelectedMonth(1);
+        setSelectedYear(selectedYear + 1);
+      } else {
+        setSelectedMonth(selectedMonth + 1);
+      }
+    }
+  };
+
+  const isCurrentMonth = selectedMonth === currentMonth && selectedYear === currentYear;
 
   const getMonthName = (month: number) => {
     const months = [
@@ -84,21 +108,57 @@ const Birthdays = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Aniversariantes</h1>
             <p className="text-muted-foreground">
-              Funcionários que fazem aniversário em {getMonthName(currentMonth)}
+              Funcionários que fazem aniversário em {getMonthName(selectedMonth)} {selectedYear}
             </p>
           </div>
           <div className="text-center">
             <Cake className="h-8 w-8 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-primary">{birthdayEmployees.length}</p>
-            <p className="text-sm text-muted-foreground">Este mês</p>
+            <p className="text-sm text-muted-foreground">
+              {isCurrentMonth ? 'Este mês' : getMonthName(selectedMonth)}
+            </p>
           </div>
         </div>
 
+        {/* Month Navigation */}
+        <Card className="shadow-card">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => navigateMonth('prev')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {getMonthName(selectedMonth === 1 ? 12 : selectedMonth - 1)}
+              </button>
+              
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-foreground">
+                  {getMonthName(selectedMonth)} {selectedYear}
+                </h2>
+                {isCurrentMonth && (
+                  <Badge variant="outline" className="mt-1">
+                    Mês Atual
+                  </Badge>
+                )}
+              </div>
+              
+              <button
+                onClick={() => navigateMonth('next')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {getMonthName(selectedMonth === 12 ? 1 : selectedMonth + 1)}
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Aniversariantes de {getMonthName(currentMonth)}</CardTitle>
+            <CardTitle>Aniversariantes de {getMonthName(selectedMonth)}</CardTitle>
             <CardDescription>
-              {totalItems} aniversariante(s) este mês • Página {currentPage} de {totalPages}
+              {totalItems} aniversariante(s) em {getMonthName(selectedMonth)} {selectedYear} • Página {currentPage} de {totalPages}
             </CardDescription>
           </CardHeader>
           
@@ -185,7 +245,7 @@ const Birthdays = () => {
               <div className="text-center py-8">
                 <Cake className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  {searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum aniversariante encontrado este mês'}
+                  {searchTerm ? 'Nenhum resultado encontrado' : `Nenhum aniversariante encontrado em ${getMonthName(selectedMonth)}`}
                 </p>
               </div>
             )}
